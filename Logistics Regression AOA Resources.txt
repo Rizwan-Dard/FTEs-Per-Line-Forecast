@@ -1,0 +1,143 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[134]:
+
+
+import pandas as pd 
+file_path = r'C:\Users\PKAhmadRi1\Desktop\AOA_Resource_Test.xlsx'
+df = pd.read_excel(file_path)
+df = df.dropna(axis=0)
+
+
+# In[135]:
+
+
+df.columns = df.columns.str.replace('_', '')
+df.columns = df.columns.str.replace(')', '')
+df.columns = df.columns.str.replace('(', '')
+
+
+# In[136]:
+
+
+df.columns
+
+
+# In[137]:
+
+
+df.columns = df.columns.str.replace(' ', '')
+
+
+# In[138]:
+
+
+df.columns
+
+
+# In[139]:
+
+
+from sklearn.preprocessing import StandardScaler
+ 
+y= df.OKNotOK
+
+
+# In[140]:
+
+
+line_features = ['SKUs#', 'Outputt', 'CapacityUtilization%',
+       'AssetIntensity%', 'EstimatedUnplannedStoppages%', 'PlannedStoppages%',
+       'AverageThroughputkg/h', 'ProductRelatedChangeoverLabourh',
+       'AverageCrewingFTE', 'ZLMV%', 'FFOH-FactoryFixOverheadCHF/t',
+       'FFOH-MaintenanceCHF/t', 'FFOH-OtherIndirectCostCHF/t',
+       'FFOH-CommonChargesCHF/t', 'VME-VariableManufacturingCHF/t',
+       'VME-VariableLabourCHF/t', 'VME-VariableEnergyCHF/t',
+       'VME-OtherDirectCostCHF/t', 'VME-SubcontractingCHF/t',
+       'DepreciationCHF/t', 'ConversionCostCHF/t', '3rdPartyPurchasedCHF/t',
+       'RawMaterialCHF/t', 'PackingMaterialCHF/t', 'TotalMaterialCostCHF/t',
+       'TotalCostofProductionCHF/t', 'OKNotOK']
+
+
+# In[141]:
+
+
+X = df[line_features]
+
+
+# In[143]:
+
+
+# split X and y into training and testing sets
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=16)
+
+from sklearn.preprocessing import StandardScaler
+sc = StandardScaler()
+X_train = sc.fit_transform(X_train)
+X_test = sc.transform(X_test)
+
+
+# In[144]:
+
+
+#import the class
+from sklearn.linear_model import LogisticRegression
+
+
+# instantiate the model (using the default parameters)
+logreg = LogisticRegression(random_state=16, solver = 'lbfgs', max_iter=90000)
+
+# fit the model with data
+logreg.fit(X_train, y_train)
+
+y_pred = logreg.predict(X_test)
+
+
+# In[145]:
+
+
+# import the metrics class
+from sklearn import metrics
+
+cnf_matrix = metrics.confusion_matrix(y_test, y_pred)
+cnf_matrix
+
+
+# In[146]:
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+class_names=[0,1] # name  of classes
+fig, ax = plt.subplots()
+tick_marks = np.arange(len(class_names))
+plt.xticks(tick_marks, class_names)
+plt.yticks(tick_marks, class_names)
+# create heatmap
+sns.heatmap(pd.DataFrame(cnf_matrix), annot=True, cmap="YlGnBu" ,fmt='g')
+ax.xaxis.set_label_position("top")
+plt.tight_layout()
+plt.title('Confusion matrix', y=1.1)
+plt.ylabel('Actual label')
+plt.xlabel('Predicted label')
+
+# Text(0.5,257.44,'Predicted label');
+
+
+# In[133]:
+
+
+y_pred
+
+
+# In[ ]:
+
+
+
+
+
